@@ -6,6 +6,8 @@ def syntaxes =  file("./syntax").list()
 for (cpu in cpus) {
     for (syntax in syntaxes) {
         final componentName = "vasm${cpu}_${syntax}"
+        final cpuDir = "./cpus/$cpu"
+        final syntaxDir = "./syntax/$syntax"
         model {
             platforms {
                 x86 {
@@ -22,12 +24,12 @@ for (cpu in cpus) {
                     sources {
                         c {
                             source {
-                                srcDirs ".", "./cpus/$cpu", "./syntax/$syntax"
+                                srcDirs ".", cpuDir, syntaxDir
                                 include "*.c"
                                 exclude "vobjdump.c"
                             }
                             exportedHeaders {
-                                srcDirs ".", "./cpus/$cpu", "./syntax/$syntax"
+                                srcDirs ".", cpuDir, syntaxDir
                                 include "*.h"
                             }
                         }
@@ -41,9 +43,10 @@ for (cpu in cpus) {
                         cCompiler.define "OUTTOS"
                         cCompiler.define "OUTVOBJ"
                         cCompiler.define "OUTXFIL"
-                        if (toolChain in Gcc) {
+                        if ((toolChain in Gcc) || (toolChain in Clang)) {
                             cCompiler.define "UNIX"
                             cCompiler.args "-O2"
+                            linker.args "-lm"
                         } else if (toolChain in VisualCpp) {
                             cCompiler.args "/nologo", "/O2", "/MT", "/Zp1", "/c", "/wd4996" 
                             linker.args "/NOLOGO"
