@@ -185,7 +185,7 @@ extern source *cur_src;
 extern section *current_section;
 extern char *filename;
 extern char *debug_filename;  /* usually an absolute C source file name */
-extern char *inname,*outname,*listname;
+extern char *inname,*outname,*listname,*compile_dir;
 extern char *output_format;
 extern char emptystr[];
 extern char vasmsym_name[];

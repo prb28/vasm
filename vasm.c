@@ -10,7 +10,7 @@
 #include "stabs.h"
 #include "dwarf.h"
 
-#define _VER "vasm 1.8f"
+#define _VER "vasm 1.8g"
 char *copyright = _VER " (c) in 2002-2019 Volker Barthelmann";
 #ifdef AMIGA
 static const char *_ver = "$VER: " _VER " " __AMIGADATE__ "\r\n";
@@ -30,7 +30,7 @@ static const char *_ver = "$VER: " _VER " " __AMIGADATE__ "\r\n";
 source *cur_src;
 char *filename,*debug_filename;
 section *current_section;
-char *inname,*outname,*listname;
+char *inname,*outname,*listname,*compile_dir;
 taddr inst_alignment;
 int done,secname_attr,unnamed_sections,ignore_multinc,nocase,no_symbols;
 int pic_check,final_pass,debug,exec_out,chklabels,warn_unalloc_ini_dat;
@@ -49,7 +49,6 @@ static char **listtitles;
 static int *listtitlelines;
 static int listtitlecnt;
 
-static char *compile_dir;
 static FILE *outfile;
 
 static int depend,depend_all;
@@ -291,7 +290,7 @@ static void assemble(void)
   if(dwarf){
     dinfo.version=dwarf;
     dinfo.producer=cnvstr(copyright,strchr(copyright,'(')-copyright-1);
-    dwarf_init(&dinfo,compile_dir,first_incpath,first_source);
+    dwarf_init(&dinfo,first_incpath,first_source);
   }
   final_pass=1;
   rorg=0;
