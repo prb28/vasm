@@ -1,30 +1,26 @@
 apply plugin: "c"
 
-model {
-    flavors {
-        f_m68k_mot
-        f_6800_madmac
-    }
-    platforms {
-        x86 {
-            architecture "x86"
-        }
-        x86_64 {
-            architecture "x86_64"
-        }
-    }
-    components {
-        vasm(NativeExecutableSpec) {
-            targetPlatform "x86"
-            targetPlatform "x86_64"
-            //targetFlavors "m68k_mot", "m68k_madmac"
-            binaries.all {
-                def elms = flavor.name.split("_")
-                if (elms.size() > 2) {
-                    def cpu = elms[1]
-                    def syntax = elms[2]
+def cpus =  file("./cpus").list()
+def syntaxes =  file("./syntax").list()
+
+for (cpu in cpus) {
+    for (syntax in syntaxes) {
+        final componentName = "vasm${cpu}_${syntax}"
+        model {
+            platforms {
+                x86 {
+                    architecture "x86"
+                }
+                x86_64 {
+                    architecture "x86_64"
+                }
+            }
+            components {
+                "$componentName"(NativeExecutableSpec) {
+                    targetPlatform "x86"
+                    targetPlatform "x86_64"
                     sources {
-                        "${flavor.name}Sources"(CSourceSet) {
+                        c {
                             source {
                                 srcDirs ".", "./cpus/$cpu", "./syntax/$syntax"
                                 include "*.c"
@@ -36,15 +32,25 @@ model {
                             }
                         }
                     }
-                } else {
-                    buildable = false
+                    binaries.all {
+                        cCompiler.define "OUTAOUT"
+                        cCompiler.define "OUTBIN"
+                        cCompiler.define "OUTELF"
+                        cCompiler.define "OUTHUNK"
+                        cCompiler.define "OUTSREC"
+                        cCompiler.define "OUTTOS"
+                        cCompiler.define "OUTVOBJ"
+                        cCompiler.define "OUTXFIL"
+                        if (toolChain in Gcc) {
+                            cCompiler.define "UNIX"
+                            cCompiler.args "-O2"
+                        } else if (toolChain in VisualCpp) {
+                            cCompiler.args "/nologo", "/O2", "/MT", "/Zp1", "/c", "/wd4996" 
+                            linker.args "/NOLOGO"
+                        }
+                    }
                 }
             }
-        }
-    }
-    tasks {
-        buildAllExecutables(Task) {
-            dependsOn $.binaries.findAll { it.buildable }
         }
     }
 }
