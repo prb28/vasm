@@ -1,0 +1,51 @@
+apply plugin: "c"
+
+model {
+    flavors {
+        f_m68k_mot
+        f_6800_madmac
+    }
+    platforms {
+        x86 {
+            architecture "x86"
+        }
+        x86_64 {
+            architecture "x86_64"
+        }
+    }
+    components {
+        vasm(NativeExecutableSpec) {
+            targetPlatform "x86"
+            targetPlatform "x86_64"
+            //targetFlavors "m68k_mot", "m68k_madmac"
+            binaries.all {
+                def elms = flavor.name.split("_")
+                if (elms.size() > 2) {
+                    def cpu = elms[1]
+                    def syntax = elms[2]
+                    sources {
+                        "${flavor.name}Sources"(CSourceSet) {
+                            source {
+                                srcDirs ".", "./cpus/$cpu", "./syntax/$syntax"
+                                include "*.c"
+                                exclude "vobjdump.c"
+                            }
+                            exportedHeaders {
+                                srcDirs ".", "./cpus/$cpu", "./syntax/$syntax"
+                                include "*.h"
+                            }
+                        }
+                    }
+                } else {
+                    buildable = false
+                }
+            }
+        }
+    }
+    tasks {
+        buildAllExecutables(Task) {
+            dependsOn $.binaries.findAll { it.buildable }
+        }
+    }
+}
+
