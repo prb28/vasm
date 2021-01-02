@@ -43,12 +43,14 @@ for (cpu in cpus) {
                         cCompiler.define "OUTTOS"
                         cCompiler.define "OUTVOBJ"
                         cCompiler.define "OUTXFIL"
+                        cCompiler.define "OUTIHEX"
+                        //cCompiler.define "WINDOWS_IGNORE_PACKING_MISMATCH"
                         if ((toolChain in Gcc) || (toolChain in Clang)) {
                             cCompiler.define "UNIX"
                             cCompiler.args "-O2"
                             linker.args "-lm"
                         } else if (toolChain in VisualCpp) {
-                            cCompiler.args "/nologo", "/O2", "/MT", "/Zp1", "/c", "/wd4996" 
+                            cCompiler.args "/Fo", "/nologo", "/O2", "/MT", "/c", "/wd4996" 
                             linker.args "/NOLOGO"
                         }
                     }
